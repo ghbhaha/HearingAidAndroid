@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-set(
-	PATH_TO_SUPERPOWERED
-	CACHE STRING ""
-)
+# convert SDK path to forward slashes on Windows
+file(TO_CMAKE_PATH ${PATH_TO_SUPERPOWERED} PATH_TO_SUPERPOWERED)
 
 message(${ANDROID_ABI})
 
@@ -13,7 +11,7 @@ add_library(
 	HearingAidAudioProcessor
 	SHARED
 	${CPP_FILES}
-	${PATH_TO_SUPERPOWERED}/AndroidIO/SuperpoweredAndroidAudioIO.cpp
+	${PATH_TO_SUPERPOWERED}/OpenSource/SuperpoweredAndroidAudioIO.cpp
 )
 
 include_directories(src/main/jni)

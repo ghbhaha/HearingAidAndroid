@@ -2,10 +2,9 @@ package com.github.vatbub.hearingaid;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.github.vatbub.hearingaid.utils.ListUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -35,7 +34,7 @@ public class ProfileManager {
     private Context callingContext;
     private Profile currentlyActiveProfile;
 
-    private ProfileManager(@NotNull Context callingContext) {
+    private ProfileManager(@NonNull Context callingContext) {
         setCallingContext(callingContext);
     }
 
@@ -50,7 +49,7 @@ public class ProfileManager {
      * @param callingContext The context to get the {@link ProfileManager} for.
      * @return The {@link ProfileManager} for the specified context.
      */
-    public static ProfileManager getInstance(@NotNull Context callingContext) {
+    public static ProfileManager getInstance(@NonNull Context callingContext) {
         synchronized (instances) {
             if (!instances.containsKey(callingContext))
                 instances.put(callingContext, new ProfileManager(callingContext));
@@ -211,12 +210,12 @@ public class ProfileManager {
      *
      * @return the context tied to this instance.
      */
-    @NotNull
+    @NonNull
     public Context getCallingContext() {
         return callingContext;
     }
 
-    private void setCallingContext(@NotNull Context callingContext) {
+    private void setCallingContext(@NonNull Context callingContext) {
         this.callingContext = callingContext;
     }
 

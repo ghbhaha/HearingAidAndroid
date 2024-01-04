@@ -1,7 +1,7 @@
 package com.github.vatbub.hearingaid.com.github.vatbub.hearingaid;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import com.github.vatbub.hearingaid.ProfileManager;
 import org.junit.After;

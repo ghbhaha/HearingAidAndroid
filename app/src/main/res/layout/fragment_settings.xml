@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.github.vatbub.hearingaid.fragments.SettingsFragment">
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -321,7 +321,7 @@
                 app:layout_column="0"
                 app:layout_row="3"/>
 
-        <android.support.v7.widget.AppCompatCheckBox
+        <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/enableCrashReportsCheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -344,5 +344,5 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/version_text_view"/>
 
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

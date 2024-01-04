@@ -8,13 +8,14 @@
 #include <SuperpoweredSimple.h>
 #include <string.h>
 #include "HearingAidAudioProcessor.h"
+#include "Superpowered.h"
 #include <SuperpoweredFrequencyDomain.h>
 #include <malloc.h>
 #include <SuperpoweredCPU.h>
 
 static HearingAidAudioProcessor *jniInstance = NULL;
 
-static SuperpoweredFrequencyDomain *frequencyDomain;
+static Superpowered::FrequencyDomain *frequencyDomain;
 static float *magnitudeLeft, *magnitudeRight, *phaseLeft, *phaseRight, *fifoOutput, *inputBufferFloat;
 static int fifoOutputFirstSample, fifoOutputLastSample, stepSize, fifoCapacity;
 
@@ -28,16 +29,20 @@ audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples, int s
 
 HearingAidAudioProcessor::HearingAidAudioProcessor(unsigned int samplerate,
                                                    unsigned int buffersize) {
-    frequencyDomain = new SuperpoweredFrequencyDomain(
+    Superpowered::Initialize("ExampleLicenseKey-WillExpire-OnNextUpdate");
+    frequencyDomain = new Superpowered::FrequencyDomain(
             FFT_LOG_SIZE); // This will do the main "magic".
-    stepSize = frequencyDomain->fftSize /
+
+    int fftSize = 1 << FFT_LOG_SIZE;
+
+    stepSize = fftSize /
                4; // The default overlap ratio is 4:1, so we will receive this amount of samples from the frequency domain in one step.
 
     // Frequency domain data goes into these buffers:
-    magnitudeLeft = (float *) malloc(frequencyDomain->fftSize * sizeof(float));
-    magnitudeRight = (float *) malloc(frequencyDomain->fftSize * sizeof(float));
-    phaseLeft = (float *) malloc(frequencyDomain->fftSize * sizeof(float));
-    phaseRight = (float *) malloc(frequencyDomain->fftSize * sizeof(float));
+    magnitudeLeft = (float *) malloc(fftSize * sizeof(float));
+    magnitudeRight = (float *) malloc(fftSize * sizeof(float));
+    phaseLeft = (float *) malloc(fftSize * sizeof(float));
+    phaseRight = (float *) malloc(fftSize * sizeof(float));
 
     // Time domain result goes into a FIFO (first-in, first-out) buffer
     fifoOutputFirstSample = fifoOutputLastSample = 0;
@@ -52,7 +57,7 @@ HearingAidAudioProcessor::HearingAidAudioProcessor(unsigned int samplerate,
             // SL_ANDROID_RECORDING_PRESET_GENERIC,
                                                  SL_ANDROID_RECORDING_PRESET_UNPROCESSED,
             // SL_ANDROID_RECORDING_PRESET_VOICE_COMMUNICATION,
-                                                 SL_ANDROID_STREAM_MEDIA, 0);
+                                                 SL_ANDROID_STREAM_MEDIA);
     onPlayPause(false);
 }
 
@@ -65,7 +70,7 @@ bool HearingAidAudioProcessor::process(short int *output, unsigned int numberOfS
     if (!eqEnabled)
         return true;
 
-    SuperpoweredShortIntToFloat(output, inputBufferFloat,
+    Superpowered::ShortIntToFloat(output, inputBufferFloat,
                                 numberOfSamples); // Converting the 16-bit integer samples to 32-bit floating point.
     frequencyDomain->addInput(inputBufferFloat,
                               numberOfSamples); // Input goes to the frequency domain.
@@ -102,7 +107,7 @@ bool HearingAidAudioProcessor::process(short int *output, unsigned int numberOfS
 
     // If we have enough samples in the fifo output buffer, pass them to the audio output.
     if (fifoOutputLastSample - fifoOutputFirstSample >= numberOfSamples) {
-        SuperpoweredFloatToShortInt(fifoOutput + fifoOutputFirstSample * 2, output,
+        Superpowered::FloatToShortInt(fifoOutput + fifoOutputFirstSample * 2, output,
                                     numberOfSamples);
         fifoOutputFirstSample += numberOfSamples;
         return true;
@@ -125,12 +130,12 @@ void HearingAidAudioProcessor::onBackground() {
 }
 
 void HearingAidAudioProcessor::start() {
-    SuperpoweredCPU::setSustainedPerformanceMode(true);
+    Superpowered::CPU::setSustainedPerformanceMode(true);
     audioSystem->start();
 }
 
 void HearingAidAudioProcessor::stop() {
-    SuperpoweredCPU::setSustainedPerformanceMode(false);
+    Superpowered::CPU::setSustainedPerformanceMode(false);
     audioSystem->stop();
 }
 

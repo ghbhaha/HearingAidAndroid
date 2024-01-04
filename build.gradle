@@ -3,31 +3,27 @@
 buildscript {
 
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/google/' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
         google()
-        jcenter()
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:7.4.1'
 
         // Add dependency for build script,
         // so we can access Git from our
         // build script.
         classpath 'org.ajoberstar:grgit:1.1.0'
-
-        classpath 'com.bugsnag:bugsnag-android-gradle-plugin:3.5.0'
-
         classpath 'com.jsoniter:jsoniter:0.9.23'
     }
 }
 
 allprojects {
     repositories {
-        google()
-        jcenter()
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://oss.jfrog.org/artifactory/libs-snapshot' }
-        maven { url 'https://maven.google.com/' }
+        maven { url 'https://maven.aliyun.com/repository/google/' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
     }
 }
 

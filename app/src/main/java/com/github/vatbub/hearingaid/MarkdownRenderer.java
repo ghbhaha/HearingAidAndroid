@@ -1,7 +1,7 @@
 package com.github.vatbub.hearingaid;
 
 import android.content.Context;
-import android.support.annotation.RawRes;
+import androidx.annotation.RawRes;
 import android.util.SparseArray;
 
 import org.commonmark.node.Node;

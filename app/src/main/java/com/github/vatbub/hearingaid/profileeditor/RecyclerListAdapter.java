@@ -2,11 +2,11 @@ package com.github.vatbub.hearingaid.profileeditor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,7 +24,7 @@ import java.util.List;
  * Created by frede on 23.02.2018.
  */
 
-public class RecyclerListAdapter extends android.support.v7.widget.RecyclerView.Adapter<ProfileViewHolder> implements OnMoveAndSwipedListener {
+public class RecyclerListAdapter extends RecyclerView.Adapter<ProfileViewHolder> implements OnMoveAndSwipedListener {
     private Context callingContext;
     private RecyclerView parentView;
     private ItemTouchHelper itemTouchHelper;

@@ -12,11 +12,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.ActivityCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -24,14 +24,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.vatbub.common.view.motd.PlatformIndependentMOTD;
-import com.github.vatbub.hearingaid.AndroidMOTDFileOutputStreamProvider;
 import com.github.vatbub.hearingaid.BottomSheetQueue;
 import com.github.vatbub.hearingaid.BugsnagWrapper;
 import com.github.vatbub.hearingaid.Constants;
@@ -42,10 +37,8 @@ import com.github.vatbub.hearingaid.R;
 import com.github.vatbub.hearingaid.RemoteConfig;
 import com.github.vatbub.hearingaid.backend.HearingAidPlaybackService;
 import com.ohoussein.playpause.PlayPauseView;
-import com.rometools.rome.feed.synd.SyndContent;
+//import com.rometools.rome.feed.synd.SyndContent;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
@@ -248,7 +241,7 @@ public class StreamingFragment extends CustomFragment implements ProfileManager.
         mMOTDBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         mMOTDBottomSheetBehavior.setPeekHeight(790);
 
-        showMOTDIfApplicable();
+//        showMOTDIfApplicable();
         showLatencyBottomSheetIfApplicable();
         showDiagnosticDataBottomSheetIfApplicable();
     }
@@ -392,104 +385,104 @@ public class StreamingFragment extends CustomFragment implements ProfileManager.
         }
     }
 
-    private void showMOTDIfApplicable() {
-        // Show messages of the day
-        Thread motdThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final PlatformIndependentMOTD motd;
-                try {
-                    PlatformIndependentMOTD.setMotdFileOutputStreamProvider(new AndroidMOTDFileOutputStreamProvider(getActivity()));
-                    motd = PlatformIndependentMOTD.getLatestMOTD(new URL(RemoteConfig.getConfig().getValue(RemoteConfig.Keys.MOTD_URL)));
-                    if (motd == null) return;
-                    if (motd.isMarkedAsRead()) return;
-
-                    // Get the motd content
-                    StringBuilder content = new StringBuilder("<head><style>" + RemoteConfig.getConfig().getValue(RemoteConfig.Keys.MOTD_CSS) + "</style></head><body><div class=\"motdContent\" id=\"motdContent\">");
-                    content.append("<p><h3>").append(motd.getEntry().getTitle()).append("</h3></p>");
-                    for (SyndContent str : motd.getEntry().getContents()) {
-                        if (str.getValue() != null) {
-                            content.append(str.getValue());
-                        }
-                    }
-                    content.append("</div></body>");
-
-                    if (content.toString().contains("<span id=\"more")) {
-                        // We've got a read more link so stop parsing the message
-                        // and change the button caption to imply that there is more
-                        // to read
-                        content = new StringBuilder(content.substring(0, content.indexOf("<span id=\"more")));
-                        // openWebpageButton.setText(bundle.getString("readMoreLink"));
-                    }
-
-                    final String finalContent = content.toString();
-
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                WebView motdView = findViewById(R.id.motd_web_view);
-
-                                final BottomSheetQueue.BottomSheetCallbackList additionalCallbacks = new BottomSheetQueue.BottomSheetCallbackList();
-                                additionalCallbacks.add(new BottomSheetQueue.CustomBottomSheetCallback() {
-                                    @Override
-                                    public void onRescheduled() {
-
-                                    }
-
-                                    @Override
-                                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                                        if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                                            try {
-                                                motd.markAsRead();
-                                            } catch (IOException | ClassNotFoundException e) {
-                                                e.printStackTrace();
-                                                BugsnagWrapper.notify(e);
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-                                    }
-                                });
-
-                                motdView.setWebViewClient(new WebViewClient() {
-                                    @Override
-                                    public void onPageFinished(WebView view, String url) {
-                                        super.onPageFinished(view, url);
-                                        bottomSheetBehaviourQueue.add(new BottomSheetQueue.BottomSheetBehaviourWrapper(mMOTDBottomSheetBehavior, true, BottomSheetBehavior.STATE_COLLAPSED, BottomSheetQueue.BottomSheetPriority.NORMAL, additionalCallbacks));
-                                    }
-                                });
-
-                                motdView.loadData(finalContent, "text/html", "UTF-8");
-                            }
-                        });
-                    }
-
-                    Button readMoreButton = findViewById(R.id.motd_read_more);
-                    readMoreButton.setOnClickListener(view -> {
-                        mMOTDBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(motd.getEntry().getUri()));
-                        startActivity(intent);
-                    });
-
-                    Button closeButton = findViewById(R.id.motd_close);
-                    closeButton.setOnClickListener(view -> {
-                        mMOTDBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    BugsnagWrapper.notify(e);
-                }
-            }
-        });
-        motdThread.setName("motdThread");
-        motdThread.start();
-    }
+//    private void showMOTDIfApplicable() {
+//        // Show messages of the day
+//        Thread motdThread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                final PlatformIndependentMOTD motd;
+//                try {
+//                    PlatformIndependentMOTD.setMotdFileOutputStreamProvider(new AndroidMOTDFileOutputStreamProvider(getActivity()));
+//                    motd = PlatformIndependentMOTD.getLatestMOTD(new URL(RemoteConfig.getConfig().getValue(RemoteConfig.Keys.MOTD_URL)));
+//                    if (motd == null) return;
+//                    if (motd.isMarkedAsRead()) return;
+//
+//                    // Get the motd content
+//                    StringBuilder content = new StringBuilder("<head><style>" + RemoteConfig.getConfig().getValue(RemoteConfig.Keys.MOTD_CSS) + "</style></head><body><div class=\"motdContent\" id=\"motdContent\">");
+//                    content.append("<p><h3>").append(motd.getEntry().getTitle()).append("</h3></p>");
+//                    for (SyndContent str : motd.getEntry().getContents()) {
+//                        if (str.getValue() != null) {
+//                            content.append(str.getValue());
+//                        }
+//                    }
+//                    content.append("</div></body>");
+//
+//                    if (content.toString().contains("<span id=\"more")) {
+//                        // We've got a read more link so stop parsing the message
+//                        // and change the button caption to imply that there is more
+//                        // to read
+//                        content = new StringBuilder(content.substring(0, content.indexOf("<span id=\"more")));
+//                        // openWebpageButton.setText(bundle.getString("readMoreLink"));
+//                    }
+//
+//                    final String finalContent = content.toString();
+//
+//                    if (getActivity() != null) {
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                WebView motdView = findViewById(R.id.motd_web_view);
+//
+//                                final BottomSheetQueue.BottomSheetCallbackList additionalCallbacks = new BottomSheetQueue.BottomSheetCallbackList();
+//                                additionalCallbacks.add(new BottomSheetQueue.CustomBottomSheetCallback() {
+//                                    @Override
+//                                    public void onRescheduled() {
+//
+//                                    }
+//
+//                                    @Override
+//                                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+//                                        if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+//                                            try {
+//                                                motd.markAsRead();
+//                                            } catch (IOException | ClassNotFoundException e) {
+//                                                e.printStackTrace();
+//                                                BugsnagWrapper.notify(e);
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+//
+//                                    }
+//                                });
+//
+//                                motdView.setWebViewClient(new WebViewClient() {
+//                                    @Override
+//                                    public void onPageFinished(WebView view, String url) {
+//                                        super.onPageFinished(view, url);
+//                                        bottomSheetBehaviourQueue.add(new BottomSheetQueue.BottomSheetBehaviourWrapper(mMOTDBottomSheetBehavior, true, BottomSheetBehavior.STATE_COLLAPSED, BottomSheetQueue.BottomSheetPriority.NORMAL, additionalCallbacks));
+//                                    }
+//                                });
+//
+//                                motdView.loadData(finalContent, "text/html", "UTF-8");
+//                            }
+//                        });
+//                    }
+//
+//                    Button readMoreButton = findViewById(R.id.motd_read_more);
+//                    readMoreButton.setOnClickListener(view -> {
+//                        mMOTDBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+//
+//                        Intent intent = new Intent(Intent.ACTION_VIEW);
+//                        intent.setData(Uri.parse(motd.getEntry().getUri()));
+//                        startActivity(intent);
+//                    });
+//
+//                    Button closeButton = findViewById(R.id.motd_close);
+//                    closeButton.setOnClickListener(view -> {
+//                        mMOTDBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+//                    });
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    BugsnagWrapper.notify(e);
+//                }
+//            }
+//        });
+//        motdThread.setName("motdThread");
+//        motdThread.start();
+//    }
 
     public void notifyEQEnabledSettingChanged() {
         if (getContext() == null) return;
