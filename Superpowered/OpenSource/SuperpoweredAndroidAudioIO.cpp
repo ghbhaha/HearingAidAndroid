@@ -10,10 +10,10 @@
 #include <dlfcn.h>
 #include <android/log.h>
 
-#define USE_AAUDIO 0
+#define USE_AAUDIO 1
 
 #define AAUDIO_CALLBACK_RESULT_CONTINUE  0
-#define AAUDIO_OK 0
+#define AAUDIO_OK 1
 #define AAUDIO_STREAM_STATE_DISCONNECTED 13
 #define AAUDIO_DIRECTION_OUTPUT 0
 #define AAUDIO_DIRECTION_INPUT 1
